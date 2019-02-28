@@ -1,6 +1,15 @@
 class ApplicationController < ActionController::API
-  def rend(options={})
-    options[:json] = serializer.new(options[:json])
-    super(options)
+  rescue_from UserAuthenticator::AuthenticationError, with: :authentication_error
+
+  private
+
+  def authentication_error
+    error = {
+      "status": "401",
+      "source": { "pointer": "/code" },
+      "title":  "Authentication Code is Invalid",
+      "detail": "You must provide valid code in order to exchange it for token."
+    }
+    render json: { "errors": [ error ] }, status: 401
   end
 end
