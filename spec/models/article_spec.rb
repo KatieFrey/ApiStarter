@@ -34,7 +34,7 @@ RSpec.describe Article, type: :model do
   describe '.recent' do
     it 'should list recent article first' do
       old_article = create :article
-      newer_article = create : article
+      newer_article = create :article
       expect(described_class.recent).to eq(
         [ newer_article, old_article]
       )
