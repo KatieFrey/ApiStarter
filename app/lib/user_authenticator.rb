@@ -1,3 +1,5 @@
+#This is a service that communicates with GitHub and registers the user if the authentication succeeds.
+
 class UserAuthenticator
   class AuthenticationError < StandardError; end
 
@@ -22,6 +24,7 @@ class UserAuthenticator
   private
 
   def client
+    # ||= this is for only if it wasn't assigned yet
     @client ||= Octokit::Client.new(
       client_id: ENV['GITHUB_CLIENT_ID'],
       client_secret: ENV['GITHUB_CLIENT_SECRET']
@@ -33,6 +36,7 @@ class UserAuthenticator
   end
 
   def user_data
+    #.to_h turns data into a hash and we slice it because there is way to much data.
     @user_data ||= Octokit::Client.new(
         access_token: token
         ).user.to_h.slice(:login, :avatar_url, :url, :name)
