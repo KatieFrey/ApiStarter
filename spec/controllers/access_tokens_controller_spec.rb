@@ -17,12 +17,8 @@ RSpec.describe AccessTokensController, type: :controller do
         expect(response).to have_http_status(401)
       end
 
-      # it 'should return proper error body' do
-      #   subject
-      #   expect(json['errors']).to include(error)
-      # end
-
     end
+
     context 'when no code provided' do
 
       subject { post :create}
@@ -58,6 +54,7 @@ RSpec.describe AccessTokensController, type: :controller do
 
       before do
         allow_any_instance_of(Octokit::Client).to receive(:exchange_code_for_token).and_return('validaccesstoken')
+        #'validaccesstoken' is a token that our API receives from GitHub.
 
         allow_any_instance_of(Octokit::Client).to receive(:user).and_return(user_data)
       end
@@ -78,6 +75,7 @@ RSpec.describe AccessTokensController, type: :controller do
         puts json_data
         expect(json_data['attributes']).to eq(
           { 'token' => user.access_token.token}
+          #access_token is the token that is saved in our database
         )
       end
 
