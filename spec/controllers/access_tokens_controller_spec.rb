@@ -1,23 +1,15 @@
 require 'rails_helper'
 
 RSpec.describe AccessTokensController, type: :controller do
-  describe '#create' do
-    shared_examples_for "unauthorized_requests" do
-      let(:error) do
-        {
-          "status": "401",
-          "source": { "pointer": "/code" },
-          "title":  "Authentication Code is Invalid",
-          "detail": "You must provide valid code in order to exchange it for token."
-        }
-      end
+  describe 'POST #create' do
 
-      it 'should return 401 status code' do
-        subject
-        expect(response).to have_http_status(401)
-      end
-
-    end
+  let(:params) do
+    {
+      data: {
+        attributes: { login: "jsmith", password: "secret" }
+      }
+    }
+  end
 
     context 'when no code provided' do
 
@@ -37,7 +29,7 @@ RSpec.describe AccessTokensController, type: :controller do
       end
 
       subject { post :create, params: { code: 'invalid_code' } }
-      it_behaves_like "unauthorized_requests"
+      it_behaves_like "unauthorized_requests" #in rails_helper
 
     end
 
@@ -59,7 +51,7 @@ RSpec.describe AccessTokensController, type: :controller do
         allow_any_instance_of(Octokit::Client).to receive(:user).and_return(user_data)
       end
 
-      subject { post :create, params: { code: 'valid_code'}}
+      subject { post :create, params: { code: 'valid_code'}} #FactoryBot
 
       it 'should return 201 status code' do
         subject
@@ -69,14 +61,42 @@ RSpec.describe AccessTokensController, type: :controller do
       it 'should return proper json body' do
         expect{ subject }.to change{ User.count }.by(1)
         user = User.find_by(login: 'jsmith1')
-
-        pp json_data
-        puts "****************************"
-        puts json_data
         expect(json_data['attributes']).to eq(
           { 'token' => user.access_token.token}
           #access_token is the token that is saved in our database
         )
+      end
+
+    end
+  end
+
+  describe 'DELETE #destroy' do
+
+
+    context 'when no authorization header provided' do
+      subject { delete :destroy}
+      it_behaves_like 'forbidden_requests' #in rails_helper
+    end
+
+    context 'when invalid authorization header provided' do
+      before {request.headers['authorization'] = 'Invalid token'}
+
+      it_behaves_like 'forbidden_requests'
+    end
+
+    context 'when valid request' do
+      let(:user) { create :user }
+      let(:access_token) { user.create_access_token }
+
+      before { request.headers['authorization'] = "Bearer #{access_token.token}" }
+
+      it 'should return 204 status code' do
+        subject
+        expect(response).to have_http_status(:no_content)
+      end
+
+      it 'should remove the proper access token' do
+        expect{ subject }.to change{ AccessToken.count }.by(-1)
       end
 
     end
