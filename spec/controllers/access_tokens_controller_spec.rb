@@ -11,10 +11,10 @@ RSpec.describe AccessTokensController, type: :controller do
     }
   end
 
-    context 'when no code provided' do
+    context 'when no auth_data provided' do
 
       subject { post :create}
-      it_behaves_like "unauthorized_requests"
+      it_behaves_like "unauthorized_standard_requests"
 
     end
 
@@ -29,7 +29,7 @@ RSpec.describe AccessTokensController, type: :controller do
       end
 
       subject { post :create, params: { code: 'invalid_code' } }
-      it_behaves_like "unauthorized_requests" #in rails_helper
+      it_behaves_like "unauthorized_oauth_requests" #in rails_helper
 
     end
 
