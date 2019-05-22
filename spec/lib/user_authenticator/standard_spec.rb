@@ -28,6 +28,15 @@ describe UserAuthenticator::Standard do
     context 'when successful auth' do
       let(:user) { create :user, login: 'ddoe', password: 'password' }
 
+      before {user}
+
+      it 'should set the user found in db' do
+        expect{subject}.not_to change{User.count}
+        expect(authenticator.user).to eq(user)
+      end
+
+
+
     end
   end
 end
