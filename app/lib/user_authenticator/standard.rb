@@ -1,7 +1,9 @@
 class UserAuthenticator::Standard < UserAuthenticator
   class AuthenticationError < StandardError; end
 
-  def initialize(login: nil, password: nil)
+  attr_reader :user, :access_token
+
+  def initialize(login, password)
 
   end
 
